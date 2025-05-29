@@ -1,0 +1,116 @@
+{
+  "utilisateurs": {
+    "nom": "string",
+    "prenom": "string",
+    "email": "string",
+    "telephone": "string",
+    "pseudo": "string",
+    "motDePasse": "string",
+    "actif": "boolean",
+    "roles": ["string"],
+    "dateCreation": "ISODate",
+    "dateEmbauche": "ISODate"
+  },
+
+  "patients": {
+    "codeAnonymat": "string",
+    "nom": "string",
+    "prenom": "string",
+    "dateNaissance": "ISODate",
+    "sexe": "string",
+    "quartier": "string",
+    "telephone": "string",
+    "profession": "string",
+    "email": "string",
+    "numeroAssurance": "string",
+    "paniersExamens": [
+      {
+        "dateCreation": "ISODate",
+        "statut": "string",
+        "examens": ["ObjectId"]
+      }
+    ],
+    "rendezVous": [
+      {
+        "dateRDV": "ISODate",
+        "heureRDV": "string",
+        "motif": "string",
+        "statut": "string"
+      }
+    ]
+  },
+
+  "examens": {
+    "codeAnonymatPatient": "string",
+    "nomExamen": "string",
+    "description": "string",
+    "numeroRecu": "string",
+    "protocole": "string",
+    "valeurReference": "string",
+    "unite": "string",
+    "delaiResultat": "int",
+    "dateCreation": "ISODate",
+    "fichePaillasseId": "ObjectId",
+    "paiement": {
+      "type": "enum",
+      "details": "object"
+    }
+  },
+
+  "echantillons": {
+    "codeAnonymat": "string",
+    "datePrelevement": "ISODate",
+    "type": "string",
+    "volumeTotal": "float",
+    "volumeDisponible": "float",
+    "statut": "string",
+    "commentaire": "string",
+    "examensAssocies": ["ObjectId"]
+  },
+
+  "analyses": {
+    "dateDebut": "ISODate",
+    "dateFin": "ISODate",
+    "statut": "string",
+    "examenId": "ObjectId",
+    "echantillonId": "ObjectId",
+    "technicienId": "ObjectId",
+    "commentaires": "string",
+    "resultats": [
+      {
+        "valeur": "string",
+        "interpretation": "string",
+        "commentaireTechnique": "string",
+        "commentaireBiologique": "string",
+        "valideTechniquement": "boolean",
+        "valideBiologiquement": "boolean",
+        "dateValidationTechnique": "ISODate",
+        "dateValidationBiologique": "ISODate"
+      }
+    ]
+  },
+
+  "rapportsAnalyse": {
+    "fichePaillasseId": "ObjectId",
+    "examens": ["ObjectId"],
+    "contenu": "string",
+    "formatFichier": "string",
+    "signatureElectronique": "string",
+    "signe": "boolean",
+    "dateGeneration": "ISODate"
+  },
+
+  "fichesPaillasse": {
+    "dateCreation": "ISODate",
+    "donneesSaisies": "string",
+    "instructions": "string",
+    "statut": "string"
+  },
+
+  "unitesTechniques": {
+    "nom": "string",
+    "description": "string",
+    "responsable": "string",
+    "examensRealises": ["ObjectId"]
+  }
+}

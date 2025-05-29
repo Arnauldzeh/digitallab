@@ -1,0 +1,101 @@
+{
+  "coproculture": {
+    "_id": "ObjectId",
+    "examenId": "ObjectId",
+    "typeFiche": "Coproculture",
+    "statut": "en_cours",
+    "dateCreation": "ISODate",
+    "creePar": "technicienId",
+    "dateDerniereModification": "ISODate",
+    "modifiePar": "technicienId",
+    "donnees": {
+      "informationsPatient": {
+        "codePatient": "string",
+        "sexe": "string",
+        "age": "int",
+        "datePrelevement": "ISODate",
+        "heurePrelevement": "string",
+        "nomPreleveur": "string"
+      },
+      "renseignementsCliniques": {
+        "immunodepression": "boolean",
+        "precisionImmunodepression": "string",
+        "diarrhee": "boolean",
+        "dureeDiarrhee": "string",
+        "douleursAbdominales": "boolean",
+        "fievre": "boolean",
+        "eosinophilieSanguine": "boolean",
+        "antibiotherapie": "boolean",
+        "precisionAntibiotherapie": "string"
+      },
+      "receptionEchantillon": {
+        "dateReception": "ISODate",
+        "heureReception": "string",
+        "receptionnePar": "string"
+      },
+      "macroscopie": {
+        "consistanceSelle": "string",
+        "couleurSelle": "string",
+        "odeur": "string"
+      },
+      "ensemencement": {
+        "bouillonSelenite": "boolean",
+        "hektoen1": "boolean",
+        "ss1": "boolean",
+        "emb": "boolean",
+        "sabouraud": "boolean",
+        "dateEnsemencement": "ISODate",
+        "technicien": "string"
+      },
+      "examenDirect": {
+        "etatFrais": {
+          "quantiteLeucocytes": "string",
+          "quantiteHematies": "string",
+          "levuresBourgeonnantes": "boolean",
+          "levuresFilamenteuses": "boolean",
+          "presenceParasites": "boolean",
+          "precisionParasites": "string"
+        },
+        "colorationGram": {
+          "pourcentageGramNegatif": "int",
+          "pourcentageGramPositif": "int"
+        }
+      },
+      "suiviCulture": {
+        "j2": {
+          "dateSuivi": "ISODate",
+          "repiquages": {
+            "hektoen2": "boolean",
+            "ss2": "boolean"
+          },
+          "descriptionColonies": {
+            "hektoen": "string",
+            "ss": "string",
+            "emb": "string",
+            "sabouraud": "string"
+          },
+          "testsBiochimiques": {
+            "gramControle": "string",
+            "testOxydase": "string",
+            "testUree1": "boolean",
+            "testUree2": "boolean"
+          }
+        },
+        "j3": {
+          "dateSuivi": "ISODate",
+          "lectureTestsUree": "string",
+          "testsSupplementaires": "string"
+        },
+        "j4": {
+          "dateSuivi": "ISODate",
+          "lectureTestsUreePrime": "string"
+        }
+      },
+      "conclusion": {
+        "texteConclusion": "string",
+        "dateConclusion": "ISODate",
+        "biologisteValidateur": "string"
+      }
+    }
+  }
+}
