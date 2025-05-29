@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   identifiant: { type: String, unique: true, required: true }, // ID unique généré
   role: {
     type: String,
-    enum: ["Agent Technicien", "Technicien", "Biologiste", "admin"], // Grades en entier
+    enum: ["Agent Technicien", "Technicien", "Biologiste", "admin", "Major"], // Grades en entier
     required: true,
   },
   poste: {
@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema({
       "Mycologie",
       "Accueil",
       "admin",
+      "Major",
     ],
     required: true,
   },
