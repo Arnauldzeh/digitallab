@@ -1,4 +1,4 @@
-const Log = require("../models/Log");
+const Log = require("../models/log");
 
 const logAction = async ({ user, action, details, ip }) => {
   try {

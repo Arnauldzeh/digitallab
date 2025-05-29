@@ -8,5 +8,5 @@ const logSchema = new mongoose.Schema({
   ip: { type: String, required: false },
 });
 
-const Log = mongoose.model("Log", logSchema);
-module.exports = Log;
+const log = mongoose.model("log", logSchema);
+module.exports = log;
