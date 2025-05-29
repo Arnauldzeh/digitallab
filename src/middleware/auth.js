@@ -1,32 +1,28 @@
 const { verifyToken } = require("../services/jwt");
 
-const authenticate = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res
-      .status(401)
-      .json({ message: "Access denied: No token provided" });
-  }
-
-  const parts = authHeader.split(" ");
-  if (parts.length !== 2 || parts[0] !== "Bearer") {
-    return res
-      .status(401)
-      .json({
-        message: "Invalid authentication token format. Use 'Bearer <token>'",
-      });
-  }
-
-  const token = parts[1];
-
+const authenticate = async (req, res, next) => {
   try {
-    const decodedToken = verifyToken(token);
-    req.user = decodedToken;
+    // 1. Vérifier la présence du header Authorization
+    const authHeader = req.headers.authorization || req.headers.Authorization;
+
+    if (!authHeader?.startsWith("Bearer ")) {
+      return res.status(401).json({
+        message: "Authentication required. Please provide a valid Bearer token",
+      });
+    }
+
+    // 2. Extraire le token
+    const token = authHeader.split(" ")[1];
+
+    // 3. Vérifier et décoder le token
+    const decoded = await verifyToken(token);
+    req.user = decoded;
+
     next();
   } catch (error) {
+    console.error("Authentication error:", error);
     return res.status(401).json({
-      message: "Authentication failed: Invalid or expired token",
+      message: error.message || "Authentication failed",
     });
   }
 };
@@ -34,11 +30,9 @@ const authenticate = (req, res, next) => {
 const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
     if (!req.user || !req.user.role || !allowedRoles.includes(req.user.role)) {
-      return res
-        .status(403)
-        .json({
-          message: "Forbidden: You do not have the required permissions",
-        });
+      return res.status(403).json({
+        message: "Forbidden: You do not have the required permissions",
+      });
     }
     next();
   };
