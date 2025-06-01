@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use("/api/users", UsersRoutes);
+app.use("/users", UsersRoutes);
 
 // Gestion des routes non trouvées (404)
 app.use((req, res, next) => {
