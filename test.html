@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Formulaire de Test API</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      form {
+        background-color: #f4f4f4;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 500px;
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+      input[type="text"],
+      input[type="email"] {
+        width: calc(100% - 22px); /* Moins le padding et la bordure */
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      #response {
+        background-color: #e0e0e0;
+        padding: 15px;
+        border-radius: 8px;
+        white-space: pre-wrap; /* Pour conserver le format du JSON */
+        word-wrap: break-word; /* Pour les longues chaînes */
+        font-family: "Courier New", Courier, monospace;
+        font-size: 14px;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Tester votre API</h1>
+
+    <form id="testForm">
+      <label for="userName">User Name :</label>
+      <input type="text" id="userName" name="userName" required />
+
+      <label for="password">Password :</label>
+      <input type="password" id="password" name="password" required />
+
+      <button type="submit">Envoyer à l'API</button>
+    </form>
+
+    <h2>Réponse de l'API :</h2>
+    <pre id="response"></pre>
+
+    <script>
+      document
+        .getElementById("testForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault(); // Empêche le rechargement de la page par défaut
+
+          const userName = document.getElementById("userName").value;
+          const password = document.getElementById("password").value;
+
+          // L'URL de votre endpoint API
+          // **TRÈS IMPORTANT : Remplacez par l'URL exacte de votre API locale.**
+          // Par exemple, si votre API Express tourne sur le port 8000, et que vous avez une route POST /api/test-formulaire
+          const apiEndpoint = "http://192.168.1.129:5000/users/signin";
+
+          const data = {
+            userName: userName,
+            password: password,
+          };
+
+          try {
+            const response = await fetch(apiEndpoint, {
+              method: "POST", // Ou 'GET' si vous testez une récupération de données
+              headers: {
+                "Content-Type": "application/json",
+                // Ajoutez d'autres en-têtes si nécessaire, par exemple un token d'autorisation
+                // 'Authorization': 'Bearer votre_token_jwt'
+              },
+              body: JSON.stringify(data), // Convertit l'objet JavaScript en chaîne JSON
+            });
+
+            // Vérifiez si la requête a réussi (statut 2xx)
+            if (response.ok) {
+              const responseData = await response.json(); // Parsez la réponse JSON
+              document.getElementById("response").textContent = JSON.stringify(
+                responseData,
+                null,
+                2
+              );
+              console.log("Succès:", responseData);
+            } else {
+              const errorData = await response.json();
+              document.getElementById(
+                "response"
+              ).textContent = `Erreur de l'API (${
+                response.status
+              }):\n${JSON.stringify(errorData, null, 2)}`;
+              console.error(
+                "Erreur de la requête:",
+                response.status,
+                errorData
+              );
+            }
+          } catch (error) {
+            document.getElementById(
+              "response"
+            ).textContent = `Erreur réseau ou CORS: ${error.message}`;
+            console.error("Erreur lors de l'envoi de la requête:", error);
+          }
+        });
+    </script>
+  </body>
+</html>

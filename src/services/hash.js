@@ -1,9 +1,9 @@
 const bcrypt = require("bcrypt");
 
-const hashPassword = async (motDePasse) => {
+const hashPassword = async (password) => {
   // console.log("Mot de passe reçu pour le hachage:", motDePasse);
   const salt = await bcrypt.genSalt(10);
-  return bcrypt.hash(motDePasse, salt);
+  return bcrypt.hash(password, salt);
 };
 
 const comparePassword = async (password, hashedPassword) => {

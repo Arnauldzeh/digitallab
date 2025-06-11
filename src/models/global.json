@@ -1,29 +1,20 @@
 {
-  "utilisateurs": {
-    "nom": "string",
-    "prenom": "string",
-    "email": "string",
-    "telephone": "string",
-    "pseudo": "string",
-    "motDePasse": "string",
-    "actif": "boolean",
-    "roles": ["string"],
+
+  "examens": {
+    "nomExamen": "string",
+    "description": "string",
+    "numeroRecu": "string",
+    "protocole": "string",
+    "valeurReference": "string",
+    "unite": "string",
+    "delaiResultat": "int",
     "dateCreation": "ISODate",
-    "dateEmbauche": "ISODate"
+    "fichePaillasseId": "ObjectId",
+    
   },
 
-  "patients": {
-    "codeAnonymat": "string",
-    "nom": "string",
-    "prenom": "string",
-    "dateNaissance": "ISODate",
-    "sexe": "string",
-    "quartier": "string",
-    "telephone": "string",
-    "profession": "string",
-    "email": "string",
-    "numeroAssurance": "string",
-    "paniersExamens": [
+  "commandeExamens": [
+    "codeAnonymatPatient": "string",
       {
         "dateCreation": "ISODate",
         "statut": "string",
@@ -38,24 +29,6 @@
         "statut": "string"
       }
     ]
-  },
-
-  "examens": {
-    "codeAnonymatPatient": "string",
-    "nomExamen": "string",
-    "description": "string",
-    "numeroRecu": "string",
-    "protocole": "string",
-    "valeurReference": "string",
-    "unite": "string",
-    "delaiResultat": "int",
-    "dateCreation": "ISODate",
-    "fichePaillasseId": "ObjectId",
-    "paiement": {
-      "type": "enum",
-      "details": "object"
-    }
-  },
 
   "echantillons": {
     "codeAnonymat": "string",
@@ -112,5 +85,10 @@
     "description": "string",
     "responsable": "string",
     "examensRealises": ["ObjectId"]
-  }
+  },
+
+  "paiement": {
+      "type": "enum",
+      "details": "object"
+    }
 }

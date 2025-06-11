@@ -7,7 +7,7 @@ const authenticate = async (req, res, next) => {
 
     if (!authHeader?.startsWith("Bearer ")) {
       return res.status(401).json({
-        message: "Authentication required. Please provide a valid Bearer token",
+        message: "Authentication required. Please provide a valid token",
       });
     }
 
@@ -29,7 +29,12 @@ const authenticate = async (req, res, next) => {
 
 const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
-    if (!req.user || !req.user.role || !allowedRoles.includes(req.user.role)) {
+    console.log("Rôle de l'utilisateur :", req.user); // 👈 AJOUTE CECI
+    if (
+      !req.user ||
+      !req.user.department ||
+      !allowedRoles.includes(req.user.department)
+    ) {
       return res.status(403).json({
         message: "Forbidden: You do not have the required permissions",
       });

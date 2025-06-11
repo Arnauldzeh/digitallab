@@ -1,16 +1,17 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  nom: { type: String, required: true },
-  prenom: { type: String, required: true },
-  telephone: { type: String, required: true, unique: true },
-  identifiant: { type: String, unique: true, required: true }, // ID unique généré
-  role: {
+  lastName: { type: String, required: true },
+  firstName: { type: String, required: true },
+  phoneNumber: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  userName: { type: String, unique: true, required: true }, // Auto-generated ID
+  qualification: {
     type: String,
-    enum: ["Agent Technicien", "Technicien", "Biologiste", "admin", "Major"], // Grades en entier
+    enum: ["Agent Technicien", "Technicien", "Biologiste", "Admin", "Major"], // translated grades
     required: true,
   },
-  poste: {
+  department: {
     type: String,
     enum: [
       "Biochimie",
@@ -27,13 +28,15 @@ const userSchema = new mongoose.Schema({
       "Endocrinologie",
       "Mycologie",
       "Accueil",
-      "admin",
+      "Prélèvement",
+      "Admin",
       "Major",
     ],
     required: true,
   },
-  motDePasse: { type: String, required: true }, // Hashé
-  dateCreation: { type: Date, default: Date.now },
+  password: { type: String, required: true }, // Hashed password
+  createdAt: { type: Date, default: Date.now },
+  hiredAt: { type: Date, default: Date.now },
   isBlocked: { type: Boolean, default: false },
 });
 

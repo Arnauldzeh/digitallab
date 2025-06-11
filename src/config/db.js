@@ -14,21 +14,22 @@ const connectDB = async () => {
     console.log(` MongoDB connecté : ${conn.connection.host}`);
 
     //  Vérifier si un admin existe déjà
-    const adminExists = await User.findOne({ role: "admin" });
+    const adminExists = await User.findOne({ qualification: "Admin" });
 
     if (!adminExists) {
       console.log(" Aucun admin trouvé. Création d'un Super Admin...");
 
-      const hashedPassword = await hashPassword("admin"); // 🔐 Hasher le mot de passe
+      const hashedPassword = await hashPassword("Admin"); // 🔐 Hasher le mot de passe
 
       const superAdmin = new User({
-        nom: "Super",
-        prenom: "Admin",
-        identifiant: "SA001",
-        poste: "Major",
-        role: "admin",
-        telephone: "0102030405",
-        motDePasse: hashedPassword,
+        lastName: "Super",
+        firstName: "Admin",
+        userName: "SA001",
+        department: "Admin",
+        qualification: "Admin",
+        phoneNumber: "0102030405",
+        email: "digitalab.app@gmail.com",
+        password: hashedPassword,
       });
 
       await superAdmin.save();

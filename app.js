@@ -1,11 +1,15 @@
 const express = require("express");
 const app = express();
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./src/config/swagger");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const UsersRoutes = require("./src/routes/users");
 const connectDB = require("./src/config/db");
 const errorHandler = require("./src/middleware/errorHandler");
 
+// Route Swagger
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Connexion à la base de données
 connectDB();
 
