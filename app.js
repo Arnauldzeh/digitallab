@@ -9,6 +9,10 @@ const UsersRoutes = require("./src/routes/users");
 const connectDB = require("./src/config/db");
 const errorHandler = require("./src/middleware/errorHandler");
 
+// Accueil
+app.get("/", (req, res) => {
+  res.json({ success: true, message: "Bienvenue sur l'API Digitalab 🚀" });
+});
 // Route Swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Connexion à la base de données
