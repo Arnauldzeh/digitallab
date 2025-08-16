@@ -1,5 +1,5 @@
 const Appointment = require("../models/appointment");
-const Patient = require("../models/Patient");
+const Patient = require("../models/patient");
 const logAction = require("../config/logger");
 
 const newAppointment = async (req, res) => {
