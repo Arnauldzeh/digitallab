@@ -14,22 +14,7 @@ app.get("/", (req, res) => {
   res.json({ success: true, message: "Bienvenue sur l'API Digitalab 🚀" });
 });
 // Route Swagger
-// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// Exposer swagger.json à Swagger UI
-app.get("/swagger.json", (req, res) => {
-  res.json(swaggerDocument);
-});
-
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(null, {
-    swaggerOptions: {
-      url: "/swagger.json", // Swagger UI va charger ton swagger.js converti en JSON
-    },
-  })
-);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Connexion à la base de données
 connectDB();
