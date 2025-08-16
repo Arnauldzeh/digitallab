@@ -1,9 +1,9 @@
 module.exports = {
   openapi: "3.0.0",
   info: {
-    title: "Mon API",
+    title: "DIGITALAB API",
     version: "1.0.0",
-    description: "Documentation de mon API",
+    description: "Documentation de l'API DIGITALAB",
   },
   tags: [
     {
@@ -25,8 +25,8 @@ module.exports = {
               schema: {
                 type: "object",
                 properties: {
-                  userName: { type: "string", example: "johndoe" },
-                  password: { type: "string", example: "secret123" },
+                  userName: { type: "string", example: "SA001" },
+                  password: { type: "string", example: "Admin" },
                 },
                 required: ["userName", "password"],
               },
@@ -81,9 +81,9 @@ module.exports = {
                   firstName: { type: "string", example: "John" },
                   // userName: { type: "string", example: "johndoe" },
                   password: { type: "string", example: "secret123" },
-                  qualification: { type: "string", example: "Médecin" },
-                  department: { type: "string", example: "Cardiologie" },
-                  phoneNumber: { type: "string", example: "+33123456789" },
+                  qualification: { type: "string", example: "Technicien" },
+                  department: { type: "string", example: "Accueil" },
+                  phoneNumber: { type: "string", example: "656195342" },
                   email: { type: "string", example: "john@example.com" },
                 },
                 required: ["userName", "password", "lastName", "firstName"],
@@ -248,24 +248,22 @@ module.exports = {
               schema: {
                 type: "object",
                 properties: {
-                  anonymizedCode: { type: "string", example: "ABC123" },
-                  name: { type: "string", example: "Dupont" },
-                  firstName: { type: "string", example: "Jean" },
+                  lastName: { type: "String", example: "Jean" },
+                  firstName: { type: "String", example: "Jean" },
                   birthDate: {
                     type: "string",
                     format: "date",
                     example: "1980-01-01",
                   },
-                  gender: { type: "string", example: "M" },
-                  // autres propriétés patients si nécessaire
+                  gender: { type: "String", example: "M" },
+                  neighborhood: { type: "String", example: "NKOLGUET" },
+                  phoneNumber: { type: "String", example: "659124853" },
+                  occupation: { type: "String", example: "Teacher" },
+                  email: { type: "String", example: "Jean@gmail.com" },
+                  department: { type: "String", example: "Cardiologie" }, // anciennement "service"
+                  prescribingDoctor: { type: "String", example: "Dr.Jean" }, // anciennement "prescriptor"
                 },
-                required: [
-                  "anonymizedCode",
-                  "name",
-                  "firstName",
-                  "birthDate",
-                  "gender",
-                ],
+                required: ["firstName", "birthDate", "gender"],
               },
             },
           },
@@ -412,6 +410,68 @@ module.exports = {
           400: { description: "Données invalides" },
           401: { description: "Non autorisé" },
           404: { description: "Patient non trouvé" },
+        },
+      },
+    },
+
+    "/users/stats": {
+      get: {
+        summary: "Statistiques des utilisateurs",
+        tags: ["Utilisateurs"],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: "Statistiques globales des utilisateurs",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    totalUsers: { type: "integer", example: 120 },
+                    activeUsers: { type: "integer", example: 100 },
+                    blockedUsers: { type: "integer", example: 20 },
+                  },
+                },
+              },
+            },
+          },
+          401: { description: "Non autorisé" },
+        },
+      },
+    },
+
+    "/users/reset-password/{id}": {
+      patch: {
+        summary: "Réinitialisation du mot de passe",
+        tags: ["Utilisateurs"],
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "ID de l'utilisateur",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  newPassword: { type: "string", example: "newsecret123" },
+                },
+                required: ["userName", "newPassword"],
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Mot de passe réinitialisé" },
+          400: { description: "Données invalides" },
+          404: { description: "Utilisateur non trouvé" },
         },
       },
     },

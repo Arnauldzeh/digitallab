@@ -1,10 +1,13 @@
 const errorHandler = (err, req, res, next) => {
-  console.error(err.stack); // Log the erreur dans la console pour le debugging
+  console.error(err.stack); // Log technique côté console
 
-  const statusCode = err.status || 500; // Définit le code d'erreur (500 par défaut)
+  const statusCode = err.status || 500;
+
   res.status(statusCode).json({
-    message: err.message || "Internal Server Error",
-    error: process.env.NODE_ENV === "development" ? err.stack : undefined, // Cache le stack trace en prod
+    success: false,
+    status: statusCode,
+    message: err.message || "Une erreur interne est survenue.",
+    error: process.env.NODE_ENV === "development" ? err.stack : undefined,
   });
 };
 

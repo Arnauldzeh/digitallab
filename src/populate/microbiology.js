@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
-const ExaminationType = require("../models/examination"); // adapte le chemin si nécessaire
+const ExaminationType = require("../models/examination");
 
 // Connexion à la base de données
-mongoose.connect("mongodb://localhost:27017/DIGITALAB-SOLUTION", {
+mongoose.connect("mongodb://localhost:27017/DIGITALAB-DEV", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -17,6 +17,11 @@ const microbiologyExaminations = [
     referenceValue: ["Absence de parasites"],
     resultDelay: 1,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Selles",
+      minVolume: 10,
+      containerType: "Pot stérile",
+    },
   },
   {
     examinationName: "GE",
@@ -27,6 +32,11 @@ const microbiologyExaminations = [
     referenceValue: ["Négatif", "Absence de Giardia/Entamoeba"],
     resultDelay: 1,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Selles",
+      minVolume: 10,
+      containerType: "Pot stérile",
+    },
   },
   {
     examinationName: "RMF",
@@ -36,6 +46,11 @@ const microbiologyExaminations = [
     referenceValue: ["Flore normale", "Pas de parasites"],
     resultDelay: 1,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Selles",
+      minVolume: 10,
+      containerType: "Pot stérile",
+    },
   },
   {
     examinationName: "Sang occulte",
@@ -46,140 +61,212 @@ const microbiologyExaminations = [
     referenceValue: ["Négatif"],
     resultDelay: 1,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Selles",
+      minVolume: 5,
+      containerType: "Pot stérile",
+    },
   },
   {
     examinationName: "Skiu suip test",
     description:
-      "Parasitologie – Test de la sueur pour dépistage de mucoviscidose (probable interprétation).",
+      "Test de la sueur pour dépistage de mucoviscidose (probable interprétation).",
     protocol:
       "Stimulation de la sueur, recueil et analyse du taux de chlorure.",
     referenceValue: ["< 40 mmol/L"],
     resultDelay: 1,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Sueur",
+      minVolume: 1,
+      containerType: "Gaze collectrice spéciale",
+    },
   },
   {
     examinationName: "TDR Palu",
-    description:
-      "Parasitologie – Test de diagnostic rapide du paludisme (Plasmodium spp.).",
+    description: "Test de diagnostic rapide du paludisme (Plasmodium spp.).",
     protocol: "Test immunochromatographique sur sang capillaire ou veineux.",
     referenceValue: ["Négatif"],
     resultDelay: 0.5,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Sang",
+      minVolume: 1,
+      containerType: "Tube EDTA",
+    },
   },
   {
     examinationName: "PCV + ATB",
-    description:
-      "Bactériologie – Prélèvement cervico-vaginal avec antibiogramme.",
+    description: "Prélèvement cervico-vaginal avec antibiogramme.",
     protocol:
       "Ecouvillonnage, culture sur milieux sélectifs, antibiogramme par diffusion.",
     referenceValue: ["Flore normale", "Pas de germe pathogène"],
     resultDelay: 2,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Sécrétions vaginales",
+      minVolume: 1,
+      containerType: "Ecouvillon stérile",
+    },
   },
   {
     examinationName: "PU + ATB",
-    description: "Bactériologie – Prélèvement urétral avec antibiogramme.",
+    description: "Prélèvement urétral avec antibiogramme.",
     protocol: "Ecouvillonnage urétral, culture, antibiogramme.",
     referenceValue: ["Absence de pathogène"],
     resultDelay: 2,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Sécrétions urétrales",
+      minVolume: 1,
+      containerType: "Ecouvillon stérile",
+    },
   },
   {
     examinationName: "Mycoplasme",
     description:
-      "Bactériologie – Détection de Mycoplasma spp. dans les sécrétions urogénitales.",
+      "Détection de Mycoplasma spp. dans les sécrétions urogénitales.",
     protocol: "PCR ou culture spécifique selon les cas.",
     referenceValue: ["Négatif"],
     resultDelay: 2,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Sécrétions urogénitales",
+      minVolume: 1,
+      containerType: "Tube sec ou milieu spécifique",
+    },
   },
   {
     examinationName: "PV + ATB",
-    description: "Bactériologie – Prélèvement vaginal avec antibiogramme.",
+    description: "Prélèvement vaginal avec antibiogramme.",
     protocol: "Ecouvillon vaginal, culture et antibiogramme.",
     referenceValue: ["Flore vaginale normale"],
     resultDelay: 2,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Sécrétions vaginales",
+      minVolume: 1,
+      containerType: "Ecouvillon stérile",
+    },
   },
   {
     examinationName: "ECBU + ATB",
-    description:
-      "Bactériologie – Examen cytobactériologique des urines avec antibiogramme.",
+    description: "Examen cytobactériologique des urines avec antibiogramme.",
     protocol:
       "Prélèvement d'urine, culture quantitative, identification et antibiogramme.",
     referenceValue: ["<10^4 UFC/mL", "Pas de pathogène"],
     resultDelay: 2,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Urine",
+      minVolume: 10,
+      containerType: "Flacon stérile",
+    },
   },
   {
     examinationName: "LCR + ZTB",
     description:
-      "Bactériologie – Analyse du LCR avec recherche de bacilles acido-alcoolo résistants.",
+      "Analyse du LCR avec recherche de bacilles acido-alcoolo résistants.",
     protocol: "Ponction lombaire, culture, coloration Ziehl-Neelsen.",
     referenceValue: ["Liquide clair, stérile", "ZTB négatif"],
     resultDelay: 3,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "LCR",
+      minVolume: 1,
+      containerType: "Tube stérile",
+    },
   },
   {
     examinationName: "Hémoculture",
-    description:
-      "Bactériologie – Culture de sang pour détection de bactéries pathogènes.",
+    description: "Culture de sang pour détection de bactéries pathogènes.",
     protocol: "Prélèvement aseptique, incubation en milieux enrichis.",
     referenceValue: ["Pas de croissance"],
     resultDelay: 3,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Sang",
+      minVolume: 10,
+      containerType: "Flacon hémoculture",
+    },
   },
   {
     examinationName: "Spermogramme",
-    description:
-      "Bactériologie – Analyse quantitative et qualitative du sperme.",
+    description: "Analyse quantitative et qualitative du sperme.",
     protocol: "Recueil après abstinence, analyse rapide en laboratoire.",
     referenceValue: [">15M/mL", "Mobilité >40%"],
     resultDelay: 1,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Sperme",
+      minVolume: 2,
+      containerType: "Pot stérile",
+    },
   },
   {
     examinationName: "Spermoculture",
-    description:
-      "Bactériologie – Culture du sperme pour recherche d’infection.",
+    description: "Culture du sperme pour recherche d’infection.",
     protocol: "Ensemencement sur milieux standards, incubation.",
     referenceValue: ["Absence de pathogène"],
     resultDelay: 2,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Sperme",
+      minVolume: 2,
+      containerType: "Pot stérile",
+    },
   },
   {
     examinationName: "Coproculture",
-    description:
-      "Bactériologie – Recherche de bactéries pathogènes dans les selles.",
+    description: "Recherche de bactéries pathogènes dans les selles.",
     protocol: "Culture sur milieux sélectifs : MacConkey, XLD, SS, etc.",
     referenceValue: ["Flore normale", "Pas de Salmonella/Shigella"],
     resultDelay: 3,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Selles",
+      minVolume: 10,
+      containerType: "Pot stérile",
+    },
   },
   {
     examinationName: "Ponction - Ascite",
-    description: "Bactériologie – Analyse microbiologique du liquide d’ascite.",
+    description: "Analyse microbiologique du liquide d’ascite.",
     protocol: "Ponction, culture, coloration de Gram.",
     referenceValue: ["Liquide clair, stérile"],
     resultDelay: 2,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Liquide d'ascite",
+      minVolume: 3,
+      containerType: "Tube stérile",
+    },
   },
   {
     examinationName: "Ponction - Pleural",
-    description: "Bactériologie – Analyse du liquide pleural.",
+    description: "Analyse du liquide pleural.",
     protocol: "Ponction pleurale, culture, Gram, biochimie.",
     referenceValue: ["Liquide stérile"],
     resultDelay: 2,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Liquide pleural",
+      minVolume: 3,
+      containerType: "Tube stérile",
+    },
   },
   {
     examinationName: "Ponction - Articulaire",
-    description:
-      "Bactériologie – Culture du liquide articulaire pour recherche d’infection.",
+    description: "Culture du liquide articulaire pour recherche d’infection.",
     protocol: "Ponction articulaire, culture sur milieux appropriés.",
     referenceValue: ["Stérile"],
     resultDelay: 2,
     technicalUnit: "MICROBIOLOGIE",
+    sampleRequirements: {
+      requiredSampleType: "Liquide articulaire",
+      minVolume: 3,
+      containerType: "Tube stérile",
+    },
   },
 ];
 

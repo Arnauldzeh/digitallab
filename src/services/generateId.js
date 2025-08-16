@@ -15,9 +15,9 @@ const generateUserId = (lastName, firstName, qualification, department) => {
 
   // Role-to-code mapping (grade)
   const roleMap = {
-    "Technician Assistant": "TA",
-    Technician: "TS",
-    Biologist: "BIO",
+    "Agent Technicien": "TA",
+    Technicien: "TS",
+    Biologiste: "BIO",
     Major: "SUP",
     Admin: "ADM",
   };
@@ -25,21 +25,21 @@ const generateUserId = (lastName, firstName, qualification, department) => {
 
   // Department-to-code mapping
   const deptMap = {
-    Biochemistry: "BIO",
-    Hematology: "HEM",
-    Immunology: "IMM",
-    Microbiology: "MIC",
-    Parasitology: "PAR",
-    Virology: "VIR",
-    Anatomopathology: "ANA",
-    Genetics: "GEN",
-    Toxicology: "TOX",
-    Bacteriology: "BAC",
-    Serology: "SER",
-    Endocrinology: "END",
-    Mycology: "MYC",
-    Reception: "REC",
-    Sampling: "SMP",
+    Biochimie: "BIO",
+    Hématologie: "HEM",
+    Immunologie: "IMM",
+    Microbiologie: "MIC",
+    Parasitologie: "PAR",
+    Virologie: "VIR",
+    Anatomopathologie: "ANA",
+    Génétique: "GEN",
+    Toxicologie: "TOX",
+    Bactériologie: "BAC",
+    Sérologie: "SER",
+    Endocrinologie: "END",
+    Mycologie: "MYC",
+    Accueil: "REC",
+    Prélèvement: "SMP",
     Admin: "ADM",
     Major: "SUP",
   };

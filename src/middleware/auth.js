@@ -29,7 +29,7 @@ const authenticate = async (req, res, next) => {
 
 const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
-    console.log("Rôle de l'utilisateur :", req.user); // 👈 AJOUTE CECI
+    // console.log("Rôle de l'utilisateur :", req.user); // 👈 AJOUTE CECI
     if (
       !req.user ||
       !req.user.department ||

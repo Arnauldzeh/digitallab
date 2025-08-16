@@ -5,7 +5,6 @@
     "heureRDV": "string",
     "motif": "string",
     "statut": "string",
-    "creeParUserId": "ObjectId",
     "examens": [
       {
         "typeExamenId": "ObjectId",

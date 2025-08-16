@@ -1,7 +1,7 @@
 const { ObjectId } = require("mongodb");
-const Patient = require("../models/Patient");
+const Patient = require("../models/patient");
 const ExaminationType = require("../models/examination");
-const ExaminationRequest = require("../models/ExaminationRequest");
+const AnalysisRequest = require("../models/analysisRequest");
 const Payment = require("../models/payment");
 const logAction = require("../config/logger");
 
@@ -30,8 +30,7 @@ const newPatient = async (req, res) => {
       !neighborhood ||
       !occupation ||
       !department ||
-      !prescribingDoctor ||
-      !clinicalNote
+      !prescribingDoctor
     ) {
       return res
         .status(400)
@@ -160,7 +159,7 @@ const newExamination = async (req, res) => {
     });
 
     // Création de la demande
-    const request = new ExaminationRequest({
+    const request = new AnalysisRequest({
       patientId: patient._id,
       requestDate: new Date(),
       status: "Pending",
@@ -210,8 +209,54 @@ const getAllExams = async (req, res) => {
   }
 };
 
+const getDailyStats = async (req, res) => {
+  try {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const [totalPatientsOfDay, totalExamsOfDay] = await Promise.all([
+      Patient.countDocuments({
+        createdAt: { $gte: todayStart, $lte: todayEnd },
+      }),
+
+      AnalysisRequest.aggregate([
+        {
+          $match: { requestDate: { $gte: todayStart, $lte: todayEnd } },
+        },
+        {
+          $project: {
+            count: { $size: "$requestedExaminations" },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$count" },
+          },
+        },
+      ]).then((res) => res[0]?.total || 0),
+    ]);
+
+    return res.status(200).json({
+      totalPatientsOfDay,
+      totalExamsOfDay,
+      totalResultsOfDay: 0, // À implémenter plus tard
+      totalAppointmentsOfDay: 0, // À implémenter plus tard
+    });
+  } catch (error) {
+    console.error("Erreur getDailyStats :", error);
+    return res
+      .status(500)
+      .json({ message: "Erreur serveur", error: error.message });
+  }
+};
+
 module.exports = {
   newPatient,
   newExamination,
   getAllExams,
+  getDailyStats,
 };

@@ -11,7 +11,7 @@ const connectDB = async () => {
 
     const conn = await mongoose.connect(process.env.MONGODB_URI);
 
-    console.log(` MongoDB connecté : ${conn.connection.host}`);
+    console.log(` MongoDB connected : ${conn.connection.host}`);
 
     //  Vérifier si un admin existe déjà
     const adminExists = await User.findOne({ qualification: "Admin" });
@@ -27,7 +27,7 @@ const connectDB = async () => {
         userName: "SA001",
         department: "Admin",
         qualification: "Admin",
-        phoneNumber: "0102030405",
+        phoneNumber: "602030405",
         email: "digitalab.app@gmail.com",
         password: hashedPassword,
       });

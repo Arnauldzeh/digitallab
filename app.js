@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./src/config/swagger");
@@ -17,21 +18,20 @@ app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// Gestion du CORS
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*"); // Autoriser tous les domaines
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE");
-    return res.status(200).json({});
-  }
-
-  next();
-});
+// Middleware CORS
+app.use(
+  cors({
+    origin: "*", // Ou mieux : ['http://localhost:4200'] en développement
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: [
+      "Origin",
+      "X-Requested-With",
+      "Content-Type",
+      "Accept",
+      "Authorization",
+    ],
+  })
+);
 
 // Routes
 app.use("/users", UsersRoutes);

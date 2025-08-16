@@ -1,10 +1,11 @@
-const Patient = require("../models/Patient");
-const ExaminationRequest = require("../models/ExaminationRequest");
+const Patient = require("../models/patient");
+const AnalysisRequest = require("../models/analysisRequest");
 const User = require("../models/users");
 const { hashPassword, comparePassword } = require("../services/hash");
 const { generateUserId } = require("../services/generateId");
 const { generateToken } = require("../services/jwt");
 const logAction = require("../config/logger");
+const analysisRequest = require("../models/analysisRequest");
 
 const signin = async (req, res, next) => {
   try {
@@ -12,6 +13,12 @@ const signin = async (req, res, next) => {
 
     const user = await User.findOne({ userName });
     if (!user) {
+      await logAction({
+        user: null,
+        action: "Failed sign-in attempt",
+        details: `User: ${userName} | Reason: Invalid credentials`,
+        ip: req.ip,
+      });
       return res
         .status(401)
         .json({ message: "Authentication failed: Invalid credentials." });
@@ -19,8 +26,28 @@ const signin = async (req, res, next) => {
 
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) {
+      await logAction({
+        user: null,
+        action: "Failed sign-in attempt",
+        details: `User: ${userName} | Reason: Invalid credentials`,
+        ip: req.ip,
+      });
       return res.status(401).json({
         message: "Authentication failed: Invalid credentials.",
+      });
+    }
+
+    // Vérification si l'utilisateur est bloqué
+    if (user.isBlocked) {
+      await logAction({
+        user: null,
+        action: "Failed sign-in attempt",
+        details: `User: ${userName} | Reason: User blocked`,
+        ip: req.ip,
+      });
+      return res.status(403).json({
+        message:
+          "Accès interdit au système, veuillez contacter l'administrateur",
       });
     }
 
@@ -40,6 +67,12 @@ const signin = async (req, res, next) => {
         email: user.email,
         isBlocked: user.isBlocked,
       },
+    });
+    await logAction({
+      user: user._id,
+      action: "User sign-in",
+      details: `User: ${user.userName}`,
+      ip: req.ip,
     });
   } catch (error) {
     // Pass error to next middleware for centralized error handling
@@ -61,7 +94,6 @@ const newUser = async (req, res, next) => {
   const userId = req.user ? req.user._id : null;
 
   try {
-    // 🔍 Required fields validation
     if (
       !firstName ||
       !lastName ||
@@ -74,9 +106,19 @@ const newUser = async (req, res, next) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
-    // 🔍 Check if a user with the same phone number already exists
-    const isFound = await User.findOne({ phoneNumber });
-    if (isFound) {
+    // 🔐 ⚠️ Recherche sur données chiffrées impossible
+    // Tu dois chercher tous les users et déchiffrer chaque phoneNumber en mémoire
+    const allUsers = await User.find({});
+    const { decrypt } = require("../services/cryptoService");
+    const phoneExists = allUsers.find((user) => {
+      try {
+        return decrypt(user.phoneNumber) === phoneNumber;
+      } catch (err) {
+        return false;
+      }
+    });
+
+    if (phoneExists) {
       await logAction({
         user: userId,
         action: "Attempt to add user with existing phone number",
@@ -88,14 +130,14 @@ const newUser = async (req, res, next) => {
       });
     }
 
-    // 🔐 Prevent non-admins from creating an admin
+    // 🔐 Restriction admin
     if (department === "Admin" && req.user?.qualification !== "Admin") {
       return res
         .status(403)
         .json({ message: "Only administrators can create an admin user." });
     }
 
-    // 1️⃣ Generate unique identifier (userName)
+    // 🔢 Générer identifiant unique
     const userName = await generateUserId(
       lastName,
       firstName,
@@ -103,10 +145,10 @@ const newUser = async (req, res, next) => {
       department
     );
 
-    // 2️⃣ Hash the password
+    // 🔐 Hachage mot de passe
     const hashedPassword = await hashPassword(password);
 
-    // 3️⃣ Create the new user
+    // 📥 Créer l'utilisateur
     const newUser = new User({
       firstName,
       lastName,
@@ -118,9 +160,8 @@ const newUser = async (req, res, next) => {
       password: hashedPassword,
     });
 
-    await newUser.save();
+    await newUser.save(); // => les champs sensibles sont chiffrés automatiquement
 
-    // 4️⃣ Log action
     await logAction({
       user: userId,
       action: "New user added",
@@ -128,10 +169,9 @@ const newUser = async (req, res, next) => {
       ip,
     });
 
-    // RESTful response for successful creation
     res.status(201).json({
       message: "User created successfully.",
-      data: { userName: newUser.userName, _id: newUser._id }, // Include key identifiers
+      data: { userName: newUser.userName, _id: newUser._id },
     });
   } catch (error) {
     console.error("Server error:", error);
@@ -141,17 +181,27 @@ const newUser = async (req, res, next) => {
       details: error.message,
       ip,
     });
-    // Pass error to next middleware for centralized error handling
-    next(error); // Using next(error) instead of res.status(500) here for consistency
+    next(error);
   }
 };
 
 // Get all users
 const getUsers = async (req, res, next) => {
   try {
-    const users = await User.find({}, "-password"); // Exclude password
+    const users = await User.find(
+      { department: { $ne: "Admin" } },
+      "-password"
+    ); // Exclude password
     // RESTful response for successful retrieval of multiple resources
+    // // Déchiffre les champs pour chaque patient
+    // users.forEach((p) => p.decryptFields());
     res.status(200).json(users);
+    await logAction({
+      user: req.user?._id,
+      action: "Consult user list",
+      details: `User list viewed`,
+      ip: req.ip,
+    });
   } catch (error) {
     next(error); // Pass error to next middleware
   }
@@ -166,6 +216,8 @@ const getUserById = async (req, res, next) => {
     }
 
     // RESTful response for successful retrieval of a single resource
+
+    user.decryptFields();
     res.status(200).json(user);
   } catch (error) {
     next(error); // Pass error to next middleware
@@ -238,10 +290,7 @@ const updateUser = async (req, res, next) => {
     });
 
     // RESTful response for successful update
-    res.status(200).json({
-      message: "User updated successfully.",
-      user,
-    });
+    res.status(200).json(user);
   } catch (error) {
     next(error); // Pass error to next middleware
   }
@@ -249,75 +298,64 @@ const updateUser = async (req, res, next) => {
 
 const getAllPatientsExams = async (req, res) => {
   try {
-    // 1. Récupérer tous les patients
-
-    const patients = await Patient.find({}); // 2. Traiter chaque patient
-
+    const patients = await Patient.find({});
+    // Déchiffre les champs pour chaque patient
+    patients.forEach((p) => p.decryptFields());
     const result = await Promise.all(
       patients.map(async (rawPatient) => {
-        const patientId = rawPatient._id; // Construire l'objet patient sans _id, __v, clinicalNote
+        const patientId = rawPatient._id;
 
         const patient = {
           anonymizedCode: rawPatient.anonymizedCode,
-
           lastName: rawPatient.lastName,
-
           firstName: rawPatient.firstName,
-
           birthDate: rawPatient.birthDate?.toISOString().split("T")[0],
-
           gender: rawPatient.gender,
-
           neighborhood: rawPatient.neighborhood,
-
           phoneNumber: rawPatient.phoneNumber,
-
           occupation: rawPatient.occupation,
-
           email: rawPatient.email,
-
           department: rawPatient.department,
-
           prescribingDoctor: rawPatient.prescribingDoctor,
-        }; // 3. Dernières demandes d’examen
+        };
 
-        const requests = await ExaminationRequest.find({
-          patientId,
-
-          status: { $ne: "Canceled" },
-        })
-
+        // Récupérer toutes les requêtes de ce patient
+        const requests = await analysisRequest
+          .find({
+            patientId,
+            status: { $ne: "Canceled" },
+          })
           .sort({ requestDate: -1 })
+          .populate("requestedExaminations.examinationTypeId");
 
-          .limit(3)
-
-          .populate("requestedExaminations.examinationTypeId"); // Par défaut
-
-        let lastExamDate = null;
-
-        let lastExamTime = null;
-
-        let lastExaminations = [];
-
-        if (requests.length) {
-          const lastRequestDate = requests[0].requestDate;
-
-          lastExamDate = lastRequestDate.toISOString().split("T")[0];
-
-          lastExamTime = lastRequestDate.toTimeString().split(" ")[0];
-
-          lastExaminations = requests.flatMap((req) =>
-            req.requestedExaminations.map((exam) => exam.examinationName)
-          );
+        // Rassembler tous les examens avec leur date
+        const allExams = [];
+        for (const req of requests) {
+          for (const exam of req.requestedExaminations) {
+            allExams.push({
+              name: exam.examinationName,
+              date: req.requestDate,
+            });
+          }
         }
+
+        // Trier tous les examens individuellement par date (les plus récents en premier)
+        const sortedExams = allExams
+          .sort((a, b) => b.date - a.date)
+          .slice(0, 3); // Garder uniquement les 3 plus récents
+
+        // Extraire juste les noms
+        const lastExaminations = sortedExams.map((e) => e.name);
+
+        const lastExamDate =
+          sortedExams[0]?.date?.toISOString().split("T")[0] || null;
+        const lastExamTime =
+          sortedExams[0]?.date?.toTimeString().split(" ")[0] || null;
 
         return {
           patient,
-
           lastExamDate,
-
           lastExamTime,
-
           lastExaminations,
         };
       })
@@ -326,11 +364,9 @@ const getAllPatientsExams = async (req, res) => {
     return res.status(200).json(result);
   } catch (error) {
     console.error("Erreur :", error);
-
     return res.status(500).json({
       message:
         "Erreur serveur lors de la récupération des examens de tous les patients.",
-
       error: error.message,
     });
   }
@@ -378,6 +414,107 @@ const updatePatient = async (req, res, next) => {
   }
 };
 
+const resetPassword = async (req, res, next) => {
+  const { id } = req.params; // ID de l'utilisateur à mettre à jour
+  const { newPassword } = req.body;
+  const requester = req.user;
+
+  try {
+    //Vérification de l'utilisateur actuel (doit être admin)
+    if (!requester || requester.department !== "Admin") {
+      return res
+        .status(403)
+        .json({ message: "Only administrators can reset passwords." });
+    }
+
+    console.log("Attempting to reset password for ID:", req.params.id);
+    const user = await User.findById(req.params.id);
+    // console.log(user);
+
+    // 3. Check if the target user exists
+    if (!user) {
+      // console.log(`User with ID ${req.params.id} not found.`);
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Récupération de l'utilisateur cible
+
+    // Hash du nouveau mot de passe
+    const hashed = await hashPassword(newPassword);
+    user.password = hashed;
+    await user.save();
+
+    // Journalisation
+    await logAction({
+      user: requester._id,
+      action: "Password reset",
+      details: `Password reset for user: ${user.userName} (${user.lastName} ${user.firstName})`,
+      ip: req.ip,
+    });
+
+    // Réponse RESTful
+    res.status(200).json({ message: "Password reset successfully." });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    next(error);
+  }
+};
+
+const getUserStatistics = async (req, res, next) => {
+  try {
+    // Récupérer tous les utilisateurs
+    const users = await User.find();
+
+    const totalUsers = users.length;
+
+    const blockedUsers = users.filter((user) => user.isBlocked).length;
+    const activeUsers = totalUsers - blockedUsers;
+
+    const usersByDepartment = {};
+    const usersByQualification = {};
+
+    users.forEach((user) => {
+      // Comptage par département
+      if (user.department) {
+        usersByDepartment[user.department] =
+          (usersByDepartment[user.department] || 0) + 1;
+      }
+
+      // Comptage par qualification
+      if (user.qualification) {
+        usersByQualification[user.qualification] =
+          (usersByQualification[user.qualification] || 0) + 1;
+      }
+    });
+
+    return res.status(200).json({
+      totalUsers,
+      activeUsers,
+      blockedUsers,
+      usersByDepartment,
+      usersByQualification,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllPatients = async (req, res, next) => {
+  try {
+    const patients = await Patient.find({});
+    // Déchiffre les champs pour chaque patient
+    patients.forEach((p) => p.decryptFields());
+    return res.status(200).json(patients);
+  } catch (error) {
+    console.error("Erreur :", error);
+
+    return res.status(500).json({
+      message: "Erreur serveur lors de la récupération de tous les patients.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   signin,
   newUser,
@@ -386,5 +523,8 @@ module.exports = {
   deleteUser,
   updateUser,
   getAllPatientsExams,
+  getAllPatients,
   updatePatient,
+  resetPassword,
+  getUserStatistics,
 };

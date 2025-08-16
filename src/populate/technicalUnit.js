@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const TechnicalUnit = require("../models/technicalUnit"); // Vérifie le chemin
 
-mongoose.connect("mongodb://localhost:27017/DIGITALAB-SOLUTION", {
+mongoose.connect("mongodb://localhost:27017/DIGITALAB-DEV", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
