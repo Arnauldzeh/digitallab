@@ -26,7 +26,7 @@ app.use(bodyParser.json());
 // Middleware CORS
 app.use(
   cors({
-    origin: "*", // Ou mieux : ['http://localhost:4200'] en développement
+    origin: "http://localhost:4200", // Ou mieux : ['http://localhost:4200'] en développement
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: [
       "Origin",
