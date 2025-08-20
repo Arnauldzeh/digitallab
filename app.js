@@ -26,7 +26,7 @@ app.use(bodyParser.json());
 // Middleware CORS
 app.use(
   cors({
-    origin: "http://localhost:4200", // Ou mieux : ['http://localhost:4200'] en développement
+    origin: "http://localhost:4200", // précise ton frontend
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: [
       "Origin",
@@ -35,6 +35,7 @@ app.use(
       "Accept",
       "Authorization",
     ],
+    credentials: true, // ⚠️ obligatoire si tu veux envoyer cookies ou tokens
   })
 );
 
