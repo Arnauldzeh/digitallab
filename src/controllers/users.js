@@ -62,7 +62,7 @@ const signin = async (req, res, next) => {
         firstName: user.firstName,
         userName: user.userName,
         qualification: user.qualification,
-        department: user.department,
+        departments: user.departments,
         phoneNumber: user.phoneNumber,
         email: user.email,
         isBlocked: user.isBlocked,
@@ -85,7 +85,7 @@ const newUser = async (req, res, next) => {
     firstName,
     lastName,
     qualification,
-    department,
+    departments,
     phoneNumber,
     email,
     password,
@@ -98,7 +98,7 @@ const newUser = async (req, res, next) => {
       !firstName ||
       !lastName ||
       !qualification ||
-      !department ||
+      !departments ||
       !phoneNumber ||
       !email ||
       !password
@@ -131,7 +131,7 @@ const newUser = async (req, res, next) => {
     }
 
     // 🔐 Restriction admin
-    if (department === "Admin" && req.user?.qualification !== "Admin") {
+    if (departments === "Admin" && req.user?.qualification !== "Admin") {
       return res
         .status(403)
         .json({ message: "Only administrators can create an admin user." });
@@ -142,7 +142,7 @@ const newUser = async (req, res, next) => {
       lastName,
       firstName,
       qualification,
-      department
+      departments
     );
 
     // 🔐 Hachage mot de passe
@@ -153,7 +153,7 @@ const newUser = async (req, res, next) => {
       firstName,
       lastName,
       qualification,
-      department,
+      departments,
       phoneNumber,
       email,
       userName,
@@ -165,7 +165,7 @@ const newUser = async (req, res, next) => {
     await logAction({
       user: userId,
       action: "New user added",
-      details: `user: ${lastName} ${firstName} | qualification: ${qualification} | department: ${department}`,
+      details: `user: ${lastName} ${firstName} | qualification: ${qualification} | departments: ${departments}`,
       ip,
     });
 
@@ -189,7 +189,7 @@ const newUser = async (req, res, next) => {
 const getUsers = async (req, res, next) => {
   try {
     const users = await User.find(
-      { department: { $ne: "Admin" } },
+      { departments: { $ne: "Admin" } },
       "-password"
     ); // Exclude password
     // RESTful response for successful retrieval of multiple resources
@@ -315,7 +315,7 @@ const getAllPatientsExams = async (req, res) => {
           phoneNumber: rawPatient.phoneNumber,
           occupation: rawPatient.occupation,
           email: rawPatient.email,
-          department: rawPatient.department,
+          departments: rawPatient.departments,
           prescribingDoctor: rawPatient.prescribingDoctor,
         };
 
@@ -421,7 +421,7 @@ const resetPassword = async (req, res, next) => {
 
   try {
     //Vérification de l'utilisateur actuel (doit être admin)
-    if (!requester || requester.department !== "Admin") {
+    if (!requester || requester.departments !== "Admin") {
       return res
         .status(403)
         .json({ message: "Only administrators can reset passwords." });
@@ -475,9 +475,9 @@ const getUserStatistics = async (req, res, next) => {
 
     users.forEach((user) => {
       // Comptage par département
-      if (user.department) {
-        usersByDepartment[user.department] =
-          (usersByDepartment[user.department] || 0) + 1;
+      if (user.departments) {
+        usersBydepartment[user.departments] =
+          (usersByDepartment[user.departments] || 0) + 1;
       }
 
       // Comptage par qualification

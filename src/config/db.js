@@ -25,7 +25,7 @@ const connectDB = async () => {
         lastName: "Super",
         firstName: "Admin",
         userName: "SA001",
-        department: "Admin",
+        departments: "Admin",
         qualification: "Admin",
         phoneNumber: "602030405",
         email: "digitalab.app@gmail.com",
