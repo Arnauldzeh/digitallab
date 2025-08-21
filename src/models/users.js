@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema(
       enum: ["Agent Technicien", "Technicien", "Biologiste", "Admin", "Major"], // translated grades
       required: true,
     },
-    department: {
+    departments: {
       type: [String],
       enum: [
         "Biochimie",
