@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     department: {
-      type: String,
+      type: [String],
       enum: [
         "Biochimie",
         "Hématologie",
