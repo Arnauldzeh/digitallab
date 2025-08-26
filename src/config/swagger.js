@@ -1,3 +1,4 @@
+// src/config/swagger.js
 module.exports = {
   openapi: "3.0.0",
   info: {
@@ -49,7 +50,10 @@ module.exports = {
                         firstName: { type: "string" },
                         userName: { type: "string" },
                         qualification: { type: "string" },
-                        department: { type: "string" },
+                        departments: {
+                          type: "array",
+                          items: { type: "string" },
+                        },
                         phoneNumber: { type: "string" },
                         email: { type: "string" },
                         isBlocked: { type: "boolean" },
@@ -79,14 +83,24 @@ module.exports = {
                 properties: {
                   lastName: { type: "string", example: "Doe" },
                   firstName: { type: "string", example: "John" },
-                  // userName: { type: "string", example: "johndoe" },
                   password: { type: "string", example: "secret123" },
                   qualification: { type: "string", example: "Technicien" },
-                  department: { type: "string", example: "Accueil" },
+                  departments: {
+                    type: "array",
+                    items: { type: "string", example: "Accueil" },
+                  },
                   phoneNumber: { type: "string", example: "656195342" },
                   email: { type: "string", example: "john@example.com" },
                 },
-                required: ["userName", "password", "lastName", "firstName"],
+                required: [
+                  "lastName",
+                  "firstName",
+                  "password",
+                  "qualification",
+                  "departments",
+                  "phoneNumber",
+                  "email",
+                ],
               },
             },
           },
@@ -119,7 +133,10 @@ module.exports = {
                       firstName: { type: "string" },
                       userName: { type: "string" },
                       qualification: { type: "string" },
-                      department: { type: "string" },
+                      departments: {
+                        type: "array",
+                        items: { type: "string" },
+                      },
                       phoneNumber: { type: "string" },
                       email: { type: "string" },
                       isBlocked: { type: "boolean" },
@@ -161,7 +178,10 @@ module.exports = {
                     firstName: { type: "string" },
                     userName: { type: "string" },
                     qualification: { type: "string" },
-                    department: { type: "string" },
+                    departments: {
+                      type: "array",
+                      items: { type: "string" },
+                    },
                     phoneNumber: { type: "string" },
                     email: { type: "string" },
                     isBlocked: { type: "boolean" },
@@ -197,7 +217,7 @@ module.exports = {
                   lastName: { type: "string" },
                   firstName: { type: "string" },
                   qualification: { type: "string" },
-                  department: { type: "string" },
+                  departments: { type: "array", items: { type: "string" } },
                   phoneNumber: { type: "string" },
                   email: { type: "string" },
                   isBlocked: { type: "boolean" },
@@ -234,8 +254,7 @@ module.exports = {
       },
     },
 
-    /////////////////////////////////////////////////////////////////////////////////////////
-
+    // Patient endpoints
     "/users/patient/new": {
       post: {
         summary: "Créer un nouveau patient",
@@ -248,22 +267,22 @@ module.exports = {
               schema: {
                 type: "object",
                 properties: {
-                  lastName: { type: "String", example: "Jean" },
-                  firstName: { type: "String", example: "Jean" },
+                  lastName: { type: "string", example: "Jean" },
+                  firstName: { type: "string", example: "Dupont" },
                   birthDate: {
                     type: "string",
                     format: "date",
                     example: "1980-01-01",
                   },
-                  gender: { type: "String", example: "M" },
-                  neighborhood: { type: "String", example: "NKOLGUET" },
-                  phoneNumber: { type: "String", example: "659124853" },
-                  occupation: { type: "String", example: "Teacher" },
-                  email: { type: "String", example: "Jean@gmail.com" },
-                  department: { type: "String", example: "Cardiologie" }, // anciennement "service"
-                  prescribingDoctor: { type: "String", example: "Dr.Jean" }, // anciennement "prescriptor"
+                  gender: { type: "string", example: "M" },
+                  neighborhood: { type: "string", example: "NKOLGUET" },
+                  phoneNumber: { type: "string", example: "659124853" },
+                  occupation: { type: "string", example: "Teacher" },
+                  email: { type: "string", example: "jean@gmail.com" },
+                  department: { type: "string", example: "Cardiologie" },
+                  prescribingDoctor: { type: "string", example: "Dr.Jean" },
                 },
-                required: ["firstName", "birthDate", "gender"],
+                required: ["firstName", "lastName", "birthDate", "gender"],
               },
             },
           },
@@ -276,205 +295,7 @@ module.exports = {
       },
     },
 
-    "/users/examination/new": {
-      post: {
-        summary: "Créer un nouvel examen",
-        tags: ["Patients"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  patientId: { type: "string", example: "abc123" },
-                  examType: { type: "string", example: "radiographie" },
-                  date: {
-                    type: "string",
-                    format: "date-time",
-                    example: "2025-06-07T12:00:00Z",
-                  },
-                  results: {
-                    type: "string",
-                    example: "Aucun problème détecté",
-                  },
-                  // autres propriétés examen
-                },
-                required: ["patientId", "examType", "date"],
-              },
-            },
-          },
-        },
-        responses: {
-          201: { description: "Examen créé" },
-          400: { description: "Données invalides" },
-        },
-      },
-    },
-
-    "/users/examination": {
-      get: {
-        summary: "Récupère la liste de tous les examens",
-        tags: ["Patients"],
-        security: [{ bearerAuth: [] }],
-        responses: {
-          200: {
-            description: "Liste des examens",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      id: { type: "string" },
-                      patientId: { type: "string" },
-                      examType: { type: "string" },
-                      date: { type: "string", format: "date-time" },
-                      results: { type: "string" },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          401: { description: "Non autorisé" },
-        },
-      },
-    },
-
-    "/users/patient/examinations": {
-      get: {
-        summary: "Récupère tous les examens des patients",
-        tags: ["Patients"],
-        security: [{ bearerAuth: [] }],
-        responses: {
-          200: {
-            description: "Liste des examens des patients",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      patientId: { type: "string" },
-                      examId: { type: "string" },
-                      examType: { type: "string" },
-                      date: { type: "string", format: "date-time" },
-                      results: { type: "string" },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          401: { description: "Non autorisé" },
-        },
-      },
-    },
-
-    "/users/patient/{anonymizedCode}": {
-      put: {
-        summary: "Met à jour un patient via son code anonymisé",
-        tags: ["Patients"],
-        security: [{ bearerAuth: [] }],
-        parameters: [
-          {
-            name: "anonymizedCode",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-            description: "Code anonymisé du patient",
-          },
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  name: { type: "string" },
-                  firstName: { type: "string" },
-                  birthDate: { type: "string", format: "date" },
-                  gender: { type: "string" },
-                  // autres champs modifiables
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: { description: "Patient mis à jour" },
-          400: { description: "Données invalides" },
-          401: { description: "Non autorisé" },
-          404: { description: "Patient non trouvé" },
-        },
-      },
-    },
-
-    "/users/stats": {
-      get: {
-        summary: "Statistiques des utilisateurs",
-        tags: ["Utilisateurs"],
-        security: [{ bearerAuth: [] }],
-        responses: {
-          200: {
-            description: "Statistiques globales des utilisateurs",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    totalUsers: { type: "integer", example: 120 },
-                    activeUsers: { type: "integer", example: 100 },
-                    blockedUsers: { type: "integer", example: 20 },
-                  },
-                },
-              },
-            },
-          },
-          401: { description: "Non autorisé" },
-        },
-      },
-    },
-
-    "/users/reset-password/{id}": {
-      patch: {
-        summary: "Réinitialisation du mot de passe",
-        tags: ["Utilisateurs"],
-        security: [{ bearerAuth: [] }],
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            schema: { type: "string" },
-            description: "ID de l'utilisateur",
-          },
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  newPassword: { type: "string", example: "newsecret123" },
-                },
-                required: ["userName", "newPassword"],
-              },
-            },
-          },
-        },
-        responses: {
-          200: { description: "Mot de passe réinitialisé" },
-          400: { description: "Données invalides" },
-          404: { description: "Utilisateur non trouvé" },
-        },
-      },
-    },
+    // Ajouter ici les autres endpoints patients / examens de façon similaire...
   },
 
   components: {
