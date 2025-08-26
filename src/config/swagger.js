@@ -1,3 +1,5 @@
+// src/config/swagger.js (Version corrigée)
+
 module.exports = {
   openapi: "3.0.0",
   info: {
@@ -5,7 +7,6 @@ module.exports = {
     version: "1.0.0",
     description: "Documentation de l'API DIGITALAB",
   },
-  // Ajout crucial pour que Swagger UI sache où envoyer les requêtes
   servers: [
     {
       url: "https://digitallab-g9xk.vercel.app",
@@ -75,7 +76,6 @@ module.exports = {
         },
       },
     },
-
     "/users/register": {
       post: {
         summary: "Créer un nouvel utilisateur",
@@ -90,7 +90,8 @@ module.exports = {
                 properties: {
                   lastName: { type: "string", example: "Doe" },
                   firstName: { type: "string", example: "John" },
-                  // userName: { type: "string", example: "johndoe" },
+                  // CORRECTION : Décommenté car il est dans `required`.
+                  userName: { type: "string", example: "johndoe" },
                   password: { type: "string", example: "secret123" },
                   qualification: { type: "string", example: "Technicien" },
                   department: { type: "string", example: "Accueil" },
@@ -109,7 +110,6 @@ module.exports = {
         },
       },
     },
-
     "/users": {
       get: {
         summary: "Récupère la liste des utilisateurs",
@@ -144,7 +144,6 @@ module.exports = {
         },
       },
     },
-
     "/users/{id}": {
       get: {
         summary: "Récupère un utilisateur par son ID",
@@ -244,9 +243,6 @@ module.exports = {
         },
       },
     },
-
-    /////////////////////////////////////////////////////////////////////////////////////////
-
     "/users/patient/new": {
       post: {
         summary: "Créer un nouveau patient",
@@ -259,20 +255,21 @@ module.exports = {
               schema: {
                 type: "object",
                 properties: {
-                  lastName: { type: "String", example: "Jean" },
-                  firstName: { type: "String", example: "Jean" },
+                  // CORRECTION : "String" devient "string"
+                  lastName: { type: "string", example: "Jean" },
+                  firstName: { type: "string", example: "Jean" },
                   birthDate: {
                     type: "string",
                     format: "date",
                     example: "1980-01-01",
                   },
-                  gender: { type: "String", example: "M" },
-                  neighborhood: { type: "String", example: "NKOLGUET" },
-                  phoneNumber: { type: "String", example: "659124853" },
-                  occupation: { type: "String", example: "Teacher" },
-                  email: { type: "String", example: "Jean@gmail.com" },
-                  department: { type: "String", example: "Cardiologie" }, // anciennement "service"
-                  prescribingDoctor: { type: "String", example: "Dr.Jean" }, // anciennement "prescriptor"
+                  gender: { type: "string", example: "M" },
+                  neighborhood: { type: "string", example: "NKOLGUET" },
+                  phoneNumber: { type: "string", example: "659124853" },
+                  occupation: { type: "string", example: "Teacher" },
+                  email: { type: "string", example: "Jean@gmail.com" },
+                  department: { type: "string", example: "Cardiologie" },
+                  prescribingDoctor: { type: "string", example: "Dr.Jean" },
                 },
                 required: ["firstName", "birthDate", "gender"],
               },
@@ -286,7 +283,6 @@ module.exports = {
         },
       },
     },
-
     "/users/examination/new": {
       post: {
         summary: "Créer un nouvel examen",
@@ -309,7 +305,6 @@ module.exports = {
                     type: "string",
                     example: "Aucun problème détecté",
                   },
-                  // autres propriétés examen
                 },
                 required: ["patientId", "examType", "date"],
               },
@@ -322,7 +317,6 @@ module.exports = {
         },
       },
     },
-
     "/users/examination": {
       get: {
         summary: "Récupère la liste de tous les examens",
@@ -353,7 +347,6 @@ module.exports = {
         },
       },
     },
-
     "/users/patient/examinations": {
       get: {
         summary: "Récupère tous les examens des patients",
@@ -384,7 +377,6 @@ module.exports = {
         },
       },
     },
-
     "/users/patient/{anonymizedCode}": {
       put: {
         summary: "Met à jour un patient via son code anonymisé",
@@ -410,7 +402,6 @@ module.exports = {
                   firstName: { type: "string" },
                   birthDate: { type: "string", format: "date" },
                   gender: { type: "string" },
-                  // autres champs modifiables
                 },
               },
             },
@@ -424,7 +415,6 @@ module.exports = {
         },
       },
     },
-
     "/users/stats": {
       get: {
         summary: "Statistiques des utilisateurs",
@@ -450,7 +440,6 @@ module.exports = {
         },
       },
     },
-
     "/users/reset-password/{id}": {
       patch: {
         summary: "Réinitialisation du mot de passe",
@@ -472,9 +461,13 @@ module.exports = {
               schema: {
                 type: "object",
                 properties: {
-                  newPassword: { type: "string", example: "newsecret123" },
+                  newPassword: {
+                    type: "string",
+                    example: "newsecret123",
+                  },
                 },
-                required: ["userName", "newPassword"],
+                // CORRECTION : On retire `userName` qui n'est pas dans les propriétés.
+                required: ["newPassword"],
               },
             },
           },
@@ -487,7 +480,6 @@ module.exports = {
       },
     },
   },
-
   components: {
     securitySchemes: {
       bearerAuth: {
