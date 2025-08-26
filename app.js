@@ -27,7 +27,7 @@ app.use(bodyParser.json());
 app.use(
   cors({
     origin: "http://localhost:4200", // précise ton frontend
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Origin",
       "X-Requested-With",
