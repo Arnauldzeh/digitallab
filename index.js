@@ -1,10 +1,11 @@
 require("dotenv").config();
-
-const http = require("http");
 const app = require("./app");
-const port = process.env.PORT;
-const server = http.createServer(app);
 
-server.listen(port, "0.0.0.0", () => {
-  console.log(`Server running at port ${port}...`);
-});
+if (process.env.IS_LOCAL === "true") {
+  const port = process.env.PORT || 5000;
+  app.listen(port, () => {
+    console.log(`Server running locally on port ${port}`);
+  });
+}
+
+module.exports = app;
