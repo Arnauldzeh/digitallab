@@ -21,7 +21,7 @@ const userValidationRules = [
     .notEmpty()
     .withMessage("Qualification is required."),
 
-  body("department").trim().notEmpty().withMessage("Department is required."),
+  body("departments").trim().notEmpty().withMessage("Department is required."),
 
   body("phoneNumber")
     .trim()

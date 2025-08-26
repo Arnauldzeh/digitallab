@@ -81,19 +81,21 @@ const signin = async (req, res, next) => {
 };
 
 const newUser = async (req, res, next) => {
-  const {
-    firstName,
-    lastName,
-    qualification,
-    departments,
-    phoneNumber,
-    email,
-    password,
-  } = req.body;
-  const ip = req.ip;
-  const userId = req.user ? req.user._id : null;
-
   try {
+    const {
+      firstName,
+      lastName,
+      qualification,
+      departments,
+      phoneNumber,
+      email,
+      password,
+    } = req.body;
+
+    const ip = req.ip;
+    const userId = req.user ? req.user._id : null;
+
+    // ✅ Vérification des champs obligatoires
     if (
       !firstName ||
       !lastName ||
@@ -106,10 +108,23 @@ const newUser = async (req, res, next) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
-    // 🔐 ⚠️ Recherche sur données chiffrées impossible
-    // Tu dois chercher tous les users et déchiffrer chaque phoneNumber en mémoire
+    // ✅ S'assurer que departments est toujours un tableau
+    const departmentsArray = Array.isArray(departments)
+      ? departments
+      : [departments];
+
+    // 🔐 Vérifier qu’un admin ne peut être créé que par un admin
+    if (
+      departmentsArray.includes("Admin") &&
+      req.user?.qualification !== "Admin"
+    ) {
+      return res.status(403).json({
+        message: "Only administrators can create an admin user.",
+      });
+    }
+
+    // 🔢 Vérification unicité du numéro de téléphone (données chiffrées)
     const allUsers = await User.find({});
-    const { decrypt } = require("../services/cryptoService");
     const phoneExists = allUsers.find((user) => {
       try {
         return decrypt(user.phoneNumber) === phoneNumber;
@@ -130,45 +145,42 @@ const newUser = async (req, res, next) => {
       });
     }
 
-    // 🔐 Restriction admin
-    if (departments === "Admin" && req.user?.qualification !== "Admin") {
-      return res
-        .status(403)
-        .json({ message: "Only administrators can create an admin user." });
-    }
-
-    // 🔢 Générer identifiant unique
+    // 🔢 Génération de l'identifiant unique
     const userName = await generateUserId(
       lastName,
       firstName,
       qualification,
-      departments
+      departmentsArray
     );
 
-    // 🔐 Hachage mot de passe
+    // 🔐 Hashage du mot de passe
     const hashedPassword = await hashPassword(password);
 
-    // 📥 Créer l'utilisateur
+    // 📥 Création du nouvel utilisateur
     const newUser = new User({
       firstName,
       lastName,
       qualification,
-      departments,
+      departments: departmentsArray,
       phoneNumber,
       email,
       userName,
       password: hashedPassword,
     });
 
-    await newUser.save(); // => les champs sensibles sont chiffrés automatiquement
+    await newUser.save();
 
+    // 🔔 Log de création
     await logAction({
       user: userId,
       action: "New user added",
-      details: `user: ${lastName} ${firstName} | qualification: ${qualification} | departments: ${departments}`,
+      details: `User: ${lastName} ${firstName} | Qualification: ${qualification} | Departments: ${departmentsArray.join(
+        ", "
+      )}`,
       ip,
     });
 
+    // ✅ Réponse
     res.status(201).json({
       message: "User created successfully.",
       data: { userName: newUser.userName, _id: newUser._id },
@@ -176,15 +188,14 @@ const newUser = async (req, res, next) => {
   } catch (error) {
     console.error("Server error:", error);
     await logAction({
-      user: userId,
+      user: req.user?._id || null,
       action: "Error adding user",
       details: error.message,
-      ip,
+      ip: req.ip,
     });
     next(error);
   }
 };
-
 // Get all users
 const getUsers = async (req, res, next) => {
   try {

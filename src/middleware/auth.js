@@ -29,11 +29,10 @@ const authenticate = async (req, res, next) => {
 
 const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
-    // console.log("Rôle de l'utilisateur :", req.user); // 👈 AJOUTE CECI
     if (
       !req.user ||
-      !req.user.department ||
-      !allowedRoles.includes(req.user.department)
+      !req.user.departments ||
+      !req.user.departments.some((dept) => allowedRoles.includes(dept))
     ) {
       return res.status(403).json({
         message: "Forbidden: You do not have the required permissions",
