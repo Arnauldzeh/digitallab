@@ -7,6 +7,7 @@ const errorHandler = require("./src/middleware/errorHandler");
 const swaggerDocument = require("./src/config/swagger.js");
 const UsersRoutes = require("./src/routes/users");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 
@@ -16,25 +17,72 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- SERVIR LES FICHIERS STATIQUES DE SWAGGER ---
-app.use(
-  "/api-docs",
-  express.static(path.join(__dirname, "node_modules/swagger-ui-dist"))
-);
-app.use(
-  "/api-docs",
-  express.static(
-    path.join(__dirname, "node_modules/swagger-ui-dist/absolute-path")
-  )
-);
+// --- SERVIR LES FICHIERS SWAGGER DEPUIS CDN ---
+app.get("/api-docs/swagger-ui.css", (req, res) => {
+  res.redirect(
+    "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui.css"
+  );
+});
+
+app.get("/api-docs/swagger-ui-bundle.js", (req, res) => {
+  res.redirect(
+    "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"
+  );
+});
+
+app.get("/api-docs/swagger-ui-standalone-preset.js", (req, res) => {
+  res.redirect(
+    "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js"
+  );
+});
 
 // --- ROUTES ---
 app.get("/", (req, res) => {
   res.json({ success: true, message: "Bienvenue sur l'API Digitalab 🚀" });
 });
 
-// Route Swagger - MAINTENANT ça va fonctionner
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// --- SWAGGER UI AVEC CDN ---
+const swaggerOptions = {
+  customCss: ".swagger-ui .topbar { display: none }",
+  customCssUrl: "/api-docs/swagger-ui.css",
+  customJs: [
+    "/api-docs/swagger-ui-bundle.js",
+    "/api-docs/swagger-ui-standalone-preset.js",
+  ],
+};
+
+app.use("/api-docs", swaggerUi.serveFiles(swaggerDocument, swaggerOptions));
+app.get("/api-docs", (req, res) => {
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>DIGITALAB API Documentation</title>
+      <link rel="stylesheet" href="/api-docs/swagger-ui.css">
+    </head>
+    <body>
+      <div id="swagger-ui"></div>
+      <script src="/api-docs/swagger-ui-bundle.js"></script>
+      <script src="/api-docs/swagger-ui-standalone-preset.js"></script>
+      <script>
+        window.onload = function() {
+          SwaggerUIBundle({
+            spec: ${JSON.stringify(swaggerDocument)},
+            dom_id: '#swagger-ui',
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+            ],
+            layout: "StandaloneLayout"
+          });
+        };
+      </script>
+    </body>
+    </html>
+  `;
+  res.send(html);
+});
 
 // --- CONNEXION DB ---
 connectDB().catch((error) => {
