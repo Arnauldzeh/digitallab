@@ -9,15 +9,12 @@ const UsersRoutes = require("./src/routes/users");
 
 const app = express();
 
-// --- 1. MIDDLEWARES GLOBAUX (à déclarer en premier) ---
+// --- 1. MIDDLEWARES GLOBAUX ---
 
-// Connexion à la base de données
-connectDB();
-
-// Middleware CORS : Le plus haut possible pour s'appliquer à toutes les requêtes.
+// Middleware CORS
 app.use(
   cors({
-    origin: "*", // Idéalement, remplacez '*' par l'URL de votre frontend en production
+    origin: "*",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Origin",
@@ -33,33 +30,40 @@ app.use(
 // Logger les requêtes
 app.use(morgan("dev"));
 
-// Parsing du corps des requêtes (remplace bodyParser)
+// Parsing du corps des requêtes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- 2. ROUTES DE L'APPLICATION ---
+// --- 2. SWAGGER EN PREMIER (Indépendant de la DB) ---
 
 // Route d'accueil
 app.get("/", (req, res) => {
   res.json({ success: true, message: "Bienvenue sur l'API Digitalab 🚀" });
 });
 
-// Route Swagger
+// Route Swagger - AVANT la connexion DB
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Routes principales de l'API
+// --- 3. CONNEXION DB AVEC GESTION D'ERREURS ---
+
+// Connexion à la base de données AVEC catch
+connectDB().catch((error) => {
+  console.error("❌ Database connection failed:", error.message);
+  // Ne pas crash l'application, mais logger l'erreur
+});
+
+// --- 4. ROUTES DE L'API ---
+
 app.use("/users", UsersRoutes);
 
-// --- 3. GESTION DES ERREURS (à déclarer en dernier) ---
+// --- 5. GESTION DES ERREURS ---
 
-// Gestion des routes non trouvées (404)
 app.use((req, res, next) => {
   const error = new Error("Not Found");
   error.status = 404;
   next(error);
 });
 
-// Middleware Global pour gérer toutes les autres erreurs
 app.use(errorHandler);
 
 module.exports = app;
