@@ -42,7 +42,9 @@ app.get("/", (req, res) => {
 });
 
 // Route Swagger - AVANT la connexion DB
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api-docs", swaggerUi.serve);
+app.get("/api-docs", swaggerUi.setup(swaggerDocument));
 
 // --- 3. CONNEXION DB AVEC GESTION D'ERREURS ---
 
