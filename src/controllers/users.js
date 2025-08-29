@@ -428,49 +428,57 @@ const updatePatient = async (req, res, next) => {
 const resetPassword = async (req, res, next) => {
   const { id } = req.params; // ID de l'utilisateur à mettre à jour
   const { newPassword } = req.body;
-  const requester = req.user;
+  const requester = req.user; // L'utilisateur qui fait la demande
 
   try {
-    //Vérification de l'utilisateur actuel (doit être admin)
-    if (!requester || requester.departments.includes("Admin")) {
+    // CORRECTION : La logique d'autorisation est maintenant correcte
+    if (!requester || !requester.departments.includes("Admin")) {
       return res
         .status(403)
-        .json({ message: "Only administrators can reset passwords." });
+        .json({
+          message:
+            "Action non autorisée. Seuls les administrateurs peuvent réinitialiser les mots de passe.",
+        });
     }
 
-    console.log("Attempting to reset password for ID:", req.params.id);
-    const user = await User.findById(req.params.id);
-    // console.log(user);
+    // AJOUT : Valider le nouveau mot de passe
+    if (!newPassword || newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Le nouveau mot de passe est requis et doit contenir au moins 8 caractères.",
+        });
+    }
 
-    // 3. Check if the target user exists
+    // AMÉLIORATION : Utiliser la variable 'id' pour la consistance
+    const user = await User.findById(id);
+
     if (!user) {
-      // console.log(`User with ID ${req.params.id} not found.`);
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
-
-    // Récupération de l'utilisateur cible
 
     // Hash du nouveau mot de passe
-    const hashed = await hashPassword(newPassword);
-    user.password = hashed;
+    const hashedPassword = await hashPassword(newPassword);
+    user.password = hashedPassword;
     await user.save();
 
-    // Journalisation
+    // Journalisation de l'action
     await logAction({
       user: requester._id,
-      action: "Password reset",
-      details: `Password reset for user: ${user.userName} (${user.lastName} ${user.firstName})`,
+      action: "Réinitialisation de mot de passe",
+      details: `Mot de passe réinitialisé pour l'utilisateur : ${user.userName} (${user.lastName} ${user.firstName})`,
       ip: req.ip,
     });
 
-    // Réponse RESTful
-    res.status(200).json({ message: "Password reset successfully." });
+    res
+      .status(200)
+      .json({ message: "Le mot de passe a été réinitialisé avec succès." });
   } catch (error) {
-    console.error("Error resetting password:", error);
+    console.error("Erreur lors de la réinitialisation du mot de passe:", error);
     next(error);
   }
 };
-
 const getUserStatistics = async (req, res, next) => {
   try {
     // Récupérer tous les utilisateurs
