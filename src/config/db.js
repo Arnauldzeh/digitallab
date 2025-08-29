@@ -1,45 +1,38 @@
-// src/config/db.js
+// src/config/db.js (Version corrigée et optimisée)
 const mongoose = require("mongoose");
-const { hashPassword } = require("../services/hash");
-const User = require("../models/users");
+
+// Variable pour mettre en cache la connexion
+let cachedDb = null;
 
 const connectDB = async () => {
+  // Si la connexion est déjà en cache, on la réutilise
+  if (cachedDb) {
+    console.log("🚀 Utilisation de la connexion MongoDB en cache !");
+    return cachedDb;
+  }
+
   try {
     if (!process.env.MONGODB_URI) {
-      throw new Error(" Erreur : MONGODB_URI non défini dans .env !");
+      throw new Error("Erreur : MONGODB_URI non défini dans .env !");
     }
 
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    console.log("🔌 Nouvelle connexion à MongoDB...");
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      // Ces options aident à éviter les timeouts dans un environnement serverless
+      bufferCommands: false,
+    });
 
-    console.log(` MongoDB connected : ${conn.connection.host}`);
+    console.log(`✅ MongoDB connecté: ${conn.connection.host}`);
 
-    //  Vérifier si un admin existe déjà
-    const adminExists = await User.findOne({ qualification: "Admin" });
-
-    if (!adminExists) {
-      console.log(" Aucun admin trouvé. Création d'un Super Admin...");
-
-      const hashedPassword = await hashPassword("Admin"); // 🔐 Hasher le mot de passe
-
-      const superAdmin = new User({
-        lastName: "Super",
-        firstName: "Admin",
-        userName: "SA001",
-        departments: "Admin",
-        qualification: "Admin",
-        phoneNumber: "602030405",
-        email: "digitalab.app@gmail.com",
-        password: hashedPassword,
-      });
-
-      await superAdmin.save();
-      console.log(" Super Admin créé avec succès !");
-    } else {
-      console.log(" Un admin existe déjà !");
-    }
+    // Mettre la connexion en cache pour les futurs appels
+    cachedDb = conn;
+    return conn;
   } catch (error) {
-    console.error(` Erreur de connexion MongoDB : ${error.message}`);
-    process.exit(1); // Arrêter l'application si la connexion échoue
+    console.error(`❌ Erreur de connexion MongoDB : ${error.message}`);
+    // Ne pas arrêter le processus, laisser Vercel gérer l'erreur de la fonction
+    throw error;
   }
 };
 

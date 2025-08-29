@@ -432,7 +432,7 @@ const resetPassword = async (req, res, next) => {
 
   try {
     //Vérification de l'utilisateur actuel (doit être admin)
-    if (!requester || requester.departments !== "Admin") {
+    if (!requester || requester.departments.includes("Admin")) {
       return res
         .status(403)
         .json({ message: "Only administrators can reset passwords." });
