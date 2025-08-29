@@ -9,7 +9,7 @@ module.exports = {
   },
   servers: [
     {
-      url: "https://digitallab-g9xk.vercel.app",
+      url: "https://digitallab-5skm.onrender.com",
       description: "Serveur de Production",
     },
     {
