@@ -20,7 +20,7 @@ app.get("/", (req, res) => {
   res.json({ success: true, message: "Bienvenue sur l'API Digitalab 🚀" });
 });
 
-// --- SWAGGER UI AVEC CDN (SOLUTION 2) ---
+// --- SWAGGER UI AVEC CDN ---
 app.use("/api-docs", swaggerUi.serve);
 app.get("/api-docs", (req, res) => {
   res.send(
