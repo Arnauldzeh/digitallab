@@ -9,18 +9,24 @@ const UsersRoutes = require("./src/routes/users");
 
 const app = express();
 
-// --- MIDDLEWARES GLOBAUX ---
-app.use(cors({ origin: "*", credentials: true }));
+// Middlewares globaux
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    credentials: true,
+  })
+);
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- ROUTES ---
+// Route accueil
 app.get("/", (req, res) => {
   res.json({ success: true, message: "Bienvenue sur l'API Digitalab 🚀" });
 });
 
-// --- SWAGGER UI AVEC CDN ---
+// Swagger
 app.use("/api-docs", swaggerUi.serve);
 app.get("/api-docs", (req, res) => {
   res.send(
@@ -35,21 +41,15 @@ app.get("/api-docs", (req, res) => {
   );
 });
 
-// --- CONNEXION DB ---
-connectDB().catch((error) => {
-  console.error("❌ Database connection failed:", error.message);
-});
-
-// --- ROUTES API ---
+// Routes API
 app.use("/users", UsersRoutes);
 
-// --- GESTION DES ERREURS ---
+// Gestion erreurs
 app.use((req, res, next) => {
   const error = new Error("Not Found");
   error.status = 404;
   next(error);
 });
-
 app.use(errorHandler);
 
 module.exports = app;
