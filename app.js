@@ -11,7 +11,13 @@ const app = express();
 
 // --- MIDDLEWARES GLOBAUX ---
 // Ces middlewares sont toujours chargés au début, quel que soit l'état de la DB.
-app.use(cors({ origin: "*", credentials: true }));
+app.use(
+  cors({
+    origin: "*", // ou ["http://localhost:4200", "https://monapp.com"]
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // liste des méthodes autorisées
+    credentials: true,
+  })
+);
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
