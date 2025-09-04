@@ -433,22 +433,18 @@ const resetPassword = async (req, res, next) => {
   try {
     // CORRECTION : La logique d'autorisation est maintenant correcte
     if (!requester || !requester.departments.includes("Admin")) {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Action non autorisée. Seuls les administrateurs peuvent réinitialiser les mots de passe.",
-        });
+      return res.status(403).json({
+        message:
+          "Action non autorisée. Seuls les administrateurs peuvent réinitialiser les mots de passe.",
+      });
     }
 
     // AJOUT : Valider le nouveau mot de passe
     if (!newPassword || newPassword.length < 8) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Le nouveau mot de passe est requis et doit contenir au moins 8 caractères.",
-        });
+      return res.status(400).json({
+        message:
+          "Le nouveau mot de passe est requis et doit contenir au moins 8 caractères.",
+      });
     }
 
     // AMÉLIORATION : Utiliser la variable 'id' pour la consistance
@@ -495,7 +491,7 @@ const getUserStatistics = async (req, res, next) => {
     users.forEach((user) => {
       // Comptage par département
       if (user.departments) {
-        usersBydepartment[user.departments] =
+        usersByDepartment[user.departments] =
           (usersByDepartment[user.departments] || 0) + 1;
       }
 
